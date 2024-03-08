@@ -1080,7 +1080,7 @@ class tpQuery
         $this->decryption = [];
     }
 
-    public static function AESencrypt(
+    public function aes_sql_encrypt(
         $value,
         $use = null,
         $key = null
@@ -1111,7 +1111,7 @@ class tpQuery
         }
     }
 
-    public static function AESdecrypt(
+    public function aes_sql_decrypt(
         $encryptedValue,
         $use = null,
         $key = null
@@ -1142,7 +1142,7 @@ class tpQuery
         }
     }
 
-    public static function AESphp_encrypt(
+    public function aes_php_encrypt(
         $value,
         $use = null,
         $key = null
@@ -1185,7 +1185,7 @@ class tpQuery
         }
     }
 
-    public static function AESphp_decrypt(
+    public static function aes_php_decrypt(
         $encryptedValue,
         $use = null,
         $key = null
