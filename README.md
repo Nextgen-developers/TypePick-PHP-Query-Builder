@@ -13,13 +13,9 @@ In this example, the $queryBuilder instance is used to build a SELECT query for 
 <h2>Examples:</h2>
 <h4>'count' method:</h4>
 <pre>
-$queryBuilder
-    ->in("typepick_users")
-    ->count(["user_id"])
-    ->where("user_id", "=", $userId)->or("username", "=", $userName)
-    ->encrypt([
-        "username" => ["method" => "AES", "key" => $AES_KEY]
-    ]);
+$queryBuilder->in("typepick_users")->count(["user_id"])
+    ->where("user_id", ">", 0)
+    ->execute();
 </pre>
 This example demonstrates a count query on the "typepick_users" table for specific conditions.
 
@@ -31,7 +27,8 @@ $queryBuilder
     ->where("username", "=", $userId)->and("email", "=", $userEmail)
     ->encrypt([
         "email" => ["method" => "AES", "key" => $AES_KEY]
-    ]);
+    ])
+     ->execute();
 </pre>
 Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
 
@@ -43,7 +40,8 @@ $queryBuilder
     ->where("user_id", "=", $userId)
     ->encrypt([
         "username" => ["method" => "BASE64"]
-    ]);
+    ])
+    ->execute();
 </pre>
 This code updates the "typepick_users" table, setting the "username" to 'new_username' for a specific user ID, including encryption for the "username" column.
 
@@ -59,7 +57,8 @@ $queryBuilder
     ])
     ->encrypt([
         "username" => ["method" => "AES", "key" => $AES_KEY]
-    ]);
+    ])
+    ->execute();
 </pre>
 This example constructs a select query for the "typepick_users" table with specific conditions, including decryption for "email" and "username" columns and encryption for the "username" column. Method for return array of objects selectAll.
 
@@ -75,7 +74,8 @@ $queryBuilder
     ->encrypt([
         "username" => ["method" => "AES", "key" => $AES_KEY, "use" => "BASE64"],
         "createdTime" => ["method" => "HEX"],
-    ]);
+    ])
+    ->execute();
 </pre>
 This snippet demonstrates an insert query for the "typepick_users" table with specified values, including encryption for the "username" and "createdTime" columns.
 
@@ -83,7 +83,7 @@ This snippet demonstrates an insert query for the "typepick_users" table with sp
 <pre>
 $buildQuery = $queryBuilder->query("find", 
 "SELECT id, uid, article_id, created_time FROM typepick_users WHERE uid = :uid",
-[":uid" => $userId]);
+[":uid" => $userId])
 </pre>
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
