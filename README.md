@@ -1,5 +1,5 @@
 # TypePick Query Builder
- Basic class for query management.
+ Basic and simple class for query management.
  
 <pre>
 $queryBuilder = new tpQuery();
@@ -9,14 +9,6 @@ $queryBuilder->in("typepick_users")->select(["user_id","username","email"])
 </pre>
 
 In this example, the $queryBuilder instance is used to build a SELECT query for the "typepick_users" table, selecting the "user_id" column. It further adds a WHERE clause to filter by "user_id" with the value of $insertedUserId. Finally, the 'execute' method executes the query and returns the result as an object ('obj'). Adjust the table name, selected columns, and conditions as needed for your specific use case.
-
-<h4>'query' method is designed to handle complex scenarios and secure parameter binding.</h4>
-<pre>
-$buildQuery = $queryBuilder->query("find", 
-"SELECT id, uid, article_id, created_time FROM typepick_users WHERE uid = :uid",
-[":uid" => $userId]);
-</pre>
-This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
 <h2>Examples:</h2>
 <h4>'count' method:</h4>
@@ -87,6 +79,13 @@ $queryBuilder
 </pre>
 This snippet demonstrates an insert query for the "typepick_users" table with specified values, including encryption for the "username" and "createdTime" columns.
 
+<h2>'query' method: designed to handle complex scenarios and secure parameter binding</h2>
+<pre>
+$buildQuery = $queryBuilder->query("find", 
+"SELECT id, uid, article_id, created_time FROM typepick_users WHERE uid = :uid",
+[":uid" => $userId]);
+</pre>
+This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
 
 
