@@ -14,27 +14,6 @@ $queryBuilder
 In this example, the $queryBuilder instance is used to build a SELECT query for the "typepick_users" table, selecting the "user_id" column. It further adds a WHERE clause to filter by "user_id" with the value of $uid. Finally, the 'execute' method executes the query and returns the result as an object ('obj'). Adjust the table name, selected columns, and conditions as needed for your specific use case.
 
 <h2>Examples:</h2>
- <h4>'COUNT' method:</h4>
-<pre>
-$queryBuilder
-    ->in("typepick_users")
-    ->count(["user_id"])
-    ->where("user_id", ">", 0)
-    ->execute();
-</pre>
-This example demonstrates a count query on the "typepick_users" table for specific conditions.
-`
-<h4>'DELETE' method:</h4>
-<pre>
-$queryBuilder
-    ->in("typepick_users")
-    ->delete()
-    ->where("username", "=", $userId)
-    ->and("email", "=", $userEmail)
-    ->execute();
-</pre>
-Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
-
 <h4>'UPDATE' method:</h4>
 <pre>
 $queryBuilder
@@ -93,6 +72,18 @@ $buildQuery = $queryBuilder->query(
 );
 </pre>
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
+
+<h4>'DELETE' method:</h4>
+<pre>
+$queryBuilder
+    ->in("typepick_users")
+    ->delete()
+    ->where("username", "=", $userId)
+    ->and("email", "=", $userEmail)
+    ->execute();
+</pre>
+Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
+
 
 <h2>Methods:</h2>
 
