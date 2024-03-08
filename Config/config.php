@@ -1,5 +1,5 @@
 <?php
-class Config {
+class initSetup {
     private const SERVER_NAME = 'localhost';
     private const DB_NAME = 'typepick';
     private const DB_USER = 'root';

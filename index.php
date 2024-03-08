@@ -1,10 +1,10 @@
 <?php
 include_once "Config/config.php";
 include_once "Class/tpQueryBuilder.php";
-Config::initialize();
+initSetup::initialize();
 
 // Initialize a TypePickQueryBuilder
-$queryBuilder = new tpQuery(Config::getDatabaseConnection());
+$queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
 
 // Some inputs
 $AES_KEY = substr(hash('sha256', 'ffgdfgh5fgh4fg86h4f8g4hjf89g', true), 0, 32);
