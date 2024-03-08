@@ -2,7 +2,7 @@
  Basic and simple class for query management.
  
 <pre>
-$queryBuilder = new tpQuery();
+$queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
 $queryBuilder
     ->in("typepick_users")
     ->select(["user_id", "username", "email"])
