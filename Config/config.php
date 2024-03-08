@@ -6,7 +6,8 @@ class initSetup {
     private const DB_PASSWORD = '';
     private const CHARSET = 'utf8mb4';
     private static $tp_databaseConnection;
-    
+    const TYPEPICK_AES_KEY = "A4848-asa5AS-AS445a89-asda54-ASa3"; 
+
     public static function initialize() {
         self::initDatabaseConnection();
     }

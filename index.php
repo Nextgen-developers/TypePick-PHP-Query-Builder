@@ -2,7 +2,7 @@
 include_once "Config/config.php";
 include_once "Class/tpQueryBuilder.php";
 initSetup::initialize();
-$AES_KEY = substr(hash('sha256', 'ffgdfgh5fgh4fg86h4f8g4hjf89g', true), 0, 32);
+$AES_KEY = substr(hash('sha256', initSetup::TYPEPICK_AES_KEY, true), 0, 32);
 
 // Initialize a TypePickQueryBuilder
 $queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
@@ -38,24 +38,14 @@ function executeQuery($queryBuilder, $queryType)
 }
 
 // --- Count Query Example ---
-$queryBuilder
-    ->in("typepick_users")
-    ->count(["user_id"])
-    ->where("user_id", "=", $userId)->or("username", "=", $userName)
-    ->encrypt([
-        "username" => ["method" => "AES", "key" => $AES_KEY]
-    ]);
+$queryBuilder->in("typepick_users")->count(["user_id"])
+    ->where("user_id", ">", 0);
 
 executeQuery($queryBuilder, 'Count');
 
 // --- Delete Query Example ---
-$queryBuilder
-    ->in("typepick_users")
-    ->delete()
-    ->where("username", "=", $userId)->and("email", "=", $userEmail)
-    ->encrypt([
-        "email" => ["method" => "AES", "key" => $AES_KEY]
-    ]);
+$queryBuilder->in("typepick_users")->delete()
+    ->where("username", "=", $userId)->and("email", "=", $userEmail);
 
 executeQuery($queryBuilder, 'Delete');
 

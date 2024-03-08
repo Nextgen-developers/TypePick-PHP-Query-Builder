@@ -2,14 +2,12 @@
 include_once "Config/config.php";
 include_once "Class/tpQueryBuilder.php";
 initSetup::initialize();
-
-//$simplified = $queryBuilder->in("typepick_users")->select(["user_id"])->where("user_id", "=", $insertedUserId)->run('obj');
+$AES_KEY = substr(hash('sha256', initSetup::TYPEPICK_AES_KEY, true), 0, 32);
 
 // Start the timer
 $startTime = microtime(true);
 
 $queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
-$AES_KEY = substr(hash('sha256','ffgdfgh5fgh4fg86h4f8g4hjf89g', true), 0, 32);
 
 echo "<h1>TypePick Query Builder Tests:</h1>";
 
