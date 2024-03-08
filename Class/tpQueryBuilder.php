@@ -1136,6 +1136,88 @@ class tpQuery
                 "')";
         }
     }
+
+    public static function AESphp_encrypt(
+        $value,
+        $use = null,
+        $key = initSetup::TYPEPICK_AES_KEY
+    ) {
+        $validatedKey = self::validateKey($key);
+
+        if (!empty($use)) {
+            if ($use === "BASE64") {
+                // Encrypt the value using AES encryption and encode the result with BASE64
+                return base64_encode(
+                    openssl_encrypt(
+                        $value,
+                        "aes-256-cbc",
+                        $validatedKey,
+                        0,
+                        $validatedKey
+                    )
+                );
+            } elseif ($use === "HEX") {
+                // Encrypt the value using AES encryption and encode the result with HEX
+                return bin2hex(
+                    openssl_encrypt(
+                        $value,
+                        "aes-256-cbc",
+                        $validatedKey,
+                        0,
+                        $validatedKey
+                    )
+                );
+            }
+        } else {
+            // Encrypt the value using AES encryption
+            return openssl_encrypt(
+                $value,
+                "aes-256-cbc",
+                $validatedKey,
+                0,
+                $validatedKey
+            );
+        }
+    }
+
+    public static function AESphp_decrypt(
+        $encryptedValue,
+        $use = null,
+        $key = initSetup::TYPEPICK_AES_KEY
+    ) {
+        $validatedKey = self::validateKey($key);
+
+        if (!empty($use)) {
+            if ($use === "BASE64") {
+                // Decode the BASE64 and then decrypt using AES decryption
+                return openssl_decrypt(
+                    base64_decode($encryptedValue),
+                    "aes-256-cbc",
+                    $validatedKey,
+                    0,
+                    $validatedKey
+                );
+            } elseif ($use === "HEX") {
+                // Decode the HEX and then decrypt using AES decryption
+                return openssl_decrypt(
+                    hex2bin($encryptedValue),
+                    "aes-256-cbc",
+                    $validatedKey,
+                    0,
+                    $validatedKey
+                );
+            }
+        } else {
+            // Decrypt using AES decryption
+            return openssl_decrypt(
+                $encryptedValue,
+                "aes-256-cbc",
+                $validatedKey,
+                0,
+                $validatedKey
+            );
+        }
+    }
 }
 
 ?>
