@@ -22,8 +22,7 @@ This example demonstrates a count query on the "typepick_users" table for specif
 <h4>'delete' method:</h4>
 <pre>
 $queryBuilder
-    ->in("typepick_users")
-    ->delete()
+    ->in("typepick_users")->delete()
     ->where("username", "=", $userId)->and("email", "=", $userEmail)
     ->encrypt([
         "email" => ["method" => "AES", "key" => $AES_KEY]
@@ -35,8 +34,7 @@ Here, a delete query is constructed for the "typepick_users" table with conditio
 <h4>'update' method:</h4>
 <pre>
 $queryBuilder
-    ->in("typepick_users")
-    ->update(["username" => 'new_username'])
+    ->in("typepick_users")->update(["username" => 'new_username'])
     ->where("user_id", "=", $userId)
     ->encrypt([
         "username" => ["method" => "BASE64"]
@@ -48,8 +46,7 @@ This code updates the "typepick_users" table, setting the "username" to 'new_use
 <h4>'select' method:</h4>
 <pre>
 $queryBuilder
-    ->in("typepick_users")
-    ->select(["user_id", "username", "email"])
+    ->in("typepick_users")->select(["user_id", "username", "email"])
     ->where("user_id", "=", $userId)->or("username", "=", $userName)
     ->decrypt([
         "email" => ["method" => "AES", "key" => $AES_KEY],
@@ -65,17 +62,14 @@ This example constructs a select query for the "typepick_users" table with speci
 <h4>'insert' method:</h4>
 <pre>
 $queryBuilder
-    ->in("typepick_users")
-    ->insert([
+    ->in("typepick_users")->insert([
         "username" => $userName,
         "email" => $userEmail,
         "createdTime" => time()
-    ])
-    ->encrypt([
+    ])->encrypt([
         "username" => ["method" => "AES", "key" => $AES_KEY, "use" => "BASE64"],
         "createdTime" => ["method" => "HEX"],
-    ])
-    ->execute();
+    ])->execute();
 </pre>
 This snippet demonstrates an insert query for the "typepick_users" table with specified values, including encryption for the "username" and "createdTime" columns.
 
