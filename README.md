@@ -26,8 +26,7 @@ $queryBuilder
     ->where("username", "=", $userId)->and("email", "=", $userEmail)
     ->encrypt([
         "email" => ["method" => "AES", "key" => $AES_KEY]
-    ])
-     ->execute();
+    ])->execute();
 </pre>
 Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
 
@@ -38,8 +37,7 @@ $queryBuilder
     ->where("user_id", "=", $userId)
     ->encrypt([
         "username" => ["method" => "BASE64"]
-    ])
-    ->execute();
+    ])->execute();
 </pre>
 This code updates the "typepick_users" table, setting the "username" to 'new_username' for a specific user ID, including encryption for the "username" column.
 
@@ -54,8 +52,7 @@ $queryBuilder
     ])
     ->encrypt([
         "username" => ["method" => "AES", "key" => $AES_KEY]
-    ])
-    ->execute();
+    ])->execute();
 </pre>
 This example constructs a select query for the "typepick_users" table with specific conditions, including decryption for "email" and "username" columns and encryption for the "username" column. Method for return array of objects selectAll.
 
