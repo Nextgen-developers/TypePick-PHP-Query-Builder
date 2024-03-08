@@ -21,7 +21,7 @@ $queryBuilder
         "username" => ["method" => "AES", "key" => $AES_KEY]
     ]);
 </pre>
-This example demonstrates a count query on the "typepick_users" table for specific conditions, including encryption for the "username" column.
+This example demonstrates a count query on the "typepick_users" table for specific conditions.
 
 <h4>'delete' method:</h4>
 <pre>
