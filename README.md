@@ -23,7 +23,7 @@ $queryBuilder
     ->execute();
 </pre>
 This example demonstrates a count query on the "typepick_users" table for specific conditions.
-
+`
 <h4>'DELETE' method:</h4>
 <pre>
 $queryBuilder
@@ -94,10 +94,47 @@ $buildQuery = $queryBuilder->query(
 </pre>
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
+<h2>Methods:</h2>
 
-
-
-
-
-
-
+> ```
+> Method in($table)
+> Inserts the target database table for the query.
+> This table will be used in future query building.
+> 
+> Method update($updateData)
+> Sets the query type to update and provides update data.
+> This data will be used in updating records in the specified table.
+> 
+> Method insert($insertData)
+> Sets the query type to insert and provides insert data.
+> This data will be used in inserting records into the specified table.
+> 
+> Method select($selectColumns)
+> Sets the query type to find and provides select columns.
+> These columns will be retrieved in the query.
+> 
+> Method selectAll($selectColumns)
+> Sets the query type to foreach and provides select columns.
+> These columns will be retrieved in the query.
+> 
+> Method count($selectColumns)
+> Sets the query type to count and provides count columns.
+> Counts the number of rows based on the specified columns.
+> 
+> Method delete()
+> Sets the query type to delete.
+> Specifies a delete operation in the query.
+>
+> Method where($conditions)
+> Adds a WHERE clause to the query based on the specified conditions.
+>
+> Method and($conditions)
+> Adds an AND condition to the WHERE clause in the query.
+>
+> Method or($conditions)
+> Adds an OR condition to the WHERE clause in the query.
+> 
+> Method execute($type)
+> Prepares query for execution and calls query method for exact execution.
+> 
+> ```
