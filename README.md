@@ -74,7 +74,7 @@ $queryBuilder
 </pre>
 Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
 
-<h2>'query' method: designed to handle complex scenarios and secure parameter binding</h2>
+<h4>'query' method: designed to handle complex scenarios and secure parameter binding</h4>
 <pre>
 $buildQuery = $queryBuilder->query(
     "find",
