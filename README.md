@@ -84,18 +84,6 @@ $buildQuery = $queryBuilder->query(
 </pre>
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
-<h4>'DELETE' method:</h4>
-<pre>
-$queryBuilder
-    ->in("typepick_users")
-    ->delete()
-    ->where("username", "=", $userId)
-    ->and("email", "=", $userEmail)
-    ->execute();
-</pre>
-Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
-
-
 <h2>Methods:</h2>
 
 > ```
