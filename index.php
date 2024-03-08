@@ -2,12 +2,12 @@
 include_once "Config/config.php";
 include_once "Class/tpQueryBuilder.php";
 initSetup::initialize();
+$AES_KEY = substr(hash('sha256', 'ffgdfgh5fgh4fg86h4f8g4hjf89g', true), 0, 32);
 
 // Initialize a TypePickQueryBuilder
 $queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
 
 // Some inputs
-$AES_KEY = substr(hash('sha256', 'ffgdfgh5fgh4fg86h4f8g4hjf89g', true), 0, 32);
 $userId = 455;
 $userEmail = "test@email.com";
 $userName = "testUsername";

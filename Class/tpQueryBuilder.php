@@ -49,15 +49,17 @@ class tpQuery
     private $decryption = [];
     private $fetchType;
     private $errors = [];
+    private $defaultEncryptionKey;
 
     /**
      * Constructor method accepting a PDO database connection.
      *
      * @param mixed $pdo The PDO database connection.
      */
-    public function __construct($pdo)
+    public function __construct($pdo, $encryptionkey = "BASIC_AES_KEY")
     {
         $this->databaseConnection = $pdo;
+        $this->defaultEncryptionKey = $encryptionkey;
         $this->fetchType = "obj";
     }
 
@@ -461,7 +463,7 @@ class tpQuery
             case "AES":
                 return $this->applyAESEncryption(
                     $value,
-                    self::validateKey($key),
+                    $this->validateKey($key),
                     $use
                 );
             case "MD5":
@@ -545,7 +547,7 @@ class tpQuery
             case "AES":
                 return $this->applyAESDecryption(
                     $value,
-                    self::validateKey($key),
+                    $this->validateKey($key),
                     $use
                 );
             case "MD5":
@@ -1053,8 +1055,11 @@ class tpQuery
      * @param string $key The encryption key to be validated.
      * @return string The validated key with a length of 32 bytes.
      */
-    public static function validateKey($key)
+    public function validateKey($key)
     {
+        if(empty($key)) {
+            $key = $this->defaultEncryptionKey;
+        }
         // Ensure the key length is valid (128, 192, or 256 bits)
         return substr(hash("sha256", $key, true), 0, 32);
     }
@@ -1078,7 +1083,7 @@ class tpQuery
     public static function AESencrypt(
         $value,
         $use = null,
-        $key = initSetup::TYPEPICK_AES_KEY
+        $key = null
     ) {
         if (!empty($use)) {
             if ($use === "BASE64") {
@@ -1086,14 +1091,14 @@ class tpQuery
                 return "TO_BASE64(AES_ENCRYPT(" .
                     $value .
                     ", '" .
-                    self::validateKey($key) .
+                    $this->validateKey($key) .
                     "'))";
             } elseif ($use === "HEX") {
                 // Encrypt the value using AES_ENCRYPT and encode the result with HEX
                 return "HEX(AES_ENCRYPT(" .
                     $value .
                     ", '" .
-                    self::validateKey($key) .
+                    $this->validateKey($key) .
                     "'))";
             }
         } else {
@@ -1101,7 +1106,7 @@ class tpQuery
             return "AES_ENCRYPT(" .
                 $value .
                 ", '" .
-                self::validateKey($key) .
+                $this->validateKey($key) .
                 "')";
         }
     }
@@ -1109,7 +1114,7 @@ class tpQuery
     public static function AESdecrypt(
         $encryptedValue,
         $use = null,
-        $key = initSetup::TYPEPICK_AES_KEY
+        $key = null
     ) {
         if (!empty($use)) {
             if ($use === "BASE64") {
@@ -1117,14 +1122,14 @@ class tpQuery
                 return "AES_DECRYPT(FROM_BASE64('" .
                     $encryptedValue .
                     "'), '" .
-                    self::validateKey($key) .
+                    $this->validateKey($key) .
                     "')";
             } elseif ($use === "HEX") {
                 // Decode the HEX and then decrypt using AES_DECRYPT
                 return "AES_DECRYPT(UNHEX('" .
                     $encryptedValue .
                     "'), '" .
-                    self::validateKey($key) .
+                    $this->validateKey($key) .
                     "')";
             }
         } else {
@@ -1132,7 +1137,7 @@ class tpQuery
             return "AES_DECRYPT('" .
                 $encryptedValue .
                 "', '" .
-                self::validateKey($key) .
+                $this->validateKey($key) .
                 "')";
         }
     }
@@ -1140,9 +1145,9 @@ class tpQuery
     public static function AESphp_encrypt(
         $value,
         $use = null,
-        $key = initSetup::TYPEPICK_AES_KEY
+        $key = null
     ) {
-        $validatedKey = self::validateKey($key);
+        $validatedKey = $this->validateKey($key);
 
         if (!empty($use)) {
             if ($use === "BASE64") {
@@ -1183,9 +1188,9 @@ class tpQuery
     public static function AESphp_decrypt(
         $encryptedValue,
         $use = null,
-        $key = initSetup::TYPEPICK_AES_KEY
+        $key = null
     ) {
-        $validatedKey = self::validateKey($key);
+        $validatedKey = $this->validateKey($key);
 
         if (!empty($use)) {
             if ($use === "BASE64") {
