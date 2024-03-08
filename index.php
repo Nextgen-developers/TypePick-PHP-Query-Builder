@@ -1,6 +1,7 @@
 <?php
 include_once "Config/config.php";
-include_once "Class/tpQueryBuilder.php";
+include_once "Build/builderClass.php";
+
 initSetup::initialize();
 $AES_KEY = substr(hash('sha256', initSetup::TYPEPICK_AES_KEY, true), 0, 32);
 
