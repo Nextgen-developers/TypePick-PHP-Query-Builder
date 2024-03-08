@@ -1,4 +1,4 @@
-# TypePick Query Builder
+# TypePick PHP Query Builder
  Basic and simple class for query management.
  
 <pre>
