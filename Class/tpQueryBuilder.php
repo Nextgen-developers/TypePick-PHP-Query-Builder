@@ -64,29 +64,6 @@ class tpQuery
     }
 
     /**
-     * Adds an error message to the list of errors.
-     *
-     * @param string $errorMessage The error message to be added.
-     *
-     * @return $this Returns the current instance for method chaining.
-     */
-    public function addError($errorMessage)
-    {
-        $this->errors[] = $errorMessage;
-        return $this;
-    }
-
-    /**
-     * Retrieves the list of errors.
-     *
-     * @return array The array containing error messages encountered during query execution.
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
      * Sets the target database table for the query.
      *
      * @param string $table The name of the target database table.
@@ -178,6 +155,75 @@ class tpQuery
     {
         $this->queryType = "delete";
         return $this;
+    }
+
+   /**
+     * Adds a WHERE condition to the query.
+     *
+     * @param string $column The column name.
+     * @param string|null $operator The comparison operator.
+     * @param mixed $value The value to compare against.
+     *
+     * @return $this The current instance for method chaining.
+     */
+    public function where($column, $operator = null, $value = null)
+    {
+        $this->parseConditions([$column, $operator, $value, "AND"]);
+        return $this;
+    }
+
+    /**
+     * Adds an AND condition to the query.
+     *
+     * @param string $column The column name.
+     * @param string $operator The comparison operator.
+     * @param mixed $value The value to compare against.
+     *
+     * @return $this The current instance for method chaining.
+     */
+    public function and($column, $operator, $value)
+    {
+        $this->parseConditions([$column, $operator, $value, "AND"]);
+        return $this;
+    }
+
+    /**
+     * Adds an OR condition to the query.
+     *
+     * @param string $column The column name.
+     * @param string $operator The comparison operator.
+     * @param mixed $value The value to compare against.
+     *
+     * @return $this The current instance for method chaining.
+     */
+    public function or($column, $operator, $value)
+    {
+        $this->parseConditions([$column, $operator, $value, "OR"]);
+        return $this;
+    }
+
+
+    /**
+     * Adds an error message to the list of errors.
+     *
+     * @param string $errorMessage The error message to be added.
+     *
+     * @return $this Returns the current instance for method chaining.
+     */
+    private function addError($errorMessage)
+    {
+        $this->errors[] = $errorMessage;
+        return $this;
+    }
+
+    /**
+     * Retrieves the list of errors.
+     *
+     * @return array The array containing error messages encountered during query execution.
+     */
+    private function getErrors()
+    {
+        return $this->errors;
     }
 
     /**
@@ -667,51 +713,6 @@ class tpQuery
         }
 
         return $bindings;
-    }
-
-    /**
-     * Adds a WHERE condition to the query.
-     *
-     * @param string $column The column name.
-     * @param string|null $operator The comparison operator.
-     * @param mixed $value The value to compare against.
-     *
-     * @return $this The current instance for method chaining.
-     */
-    public function where($column, $operator = null, $value = null)
-    {
-        $this->parseConditions([$column, $operator, $value, "AND"]);
-        return $this;
-    }
-
-    /**
-     * Adds an AND condition to the query.
-     *
-     * @param string $column The column name.
-     * @param string $operator The comparison operator.
-     * @param mixed $value The value to compare against.
-     *
-     * @return $this The current instance for method chaining.
-     */
-    public function and($column, $operator, $value)
-    {
-        $this->parseConditions([$column, $operator, $value, "AND"]);
-        return $this;
-    }
-
-    /**
-     * Adds an OR condition to the query.
-     *
-     * @param string $column The column name.
-     * @param string $operator The comparison operator.
-     * @param mixed $value The value to compare against.
-     *
-     * @return $this The current instance for method chaining.
-     */
-    public function or($column, $operator, $value)
-    {
-        $this->parseConditions([$column, $operator, $value, "OR"]);
-        return $this;
     }
 
     /**
