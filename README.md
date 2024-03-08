@@ -22,7 +22,8 @@ This example demonstrates a count query on the "typepick_users" table for specif
 <h4>'delete' method:</h4>
 <pre>
 $queryBuilder->in("typepick_users")->delete()
-    ->where("username", "=", $userId)->and("email", "=", $userEmail);->execute();
+    ->where("username", "=", $userId)->and("email", "=", $userEmail)
+    ->execute();
 </pre>
 Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
 
