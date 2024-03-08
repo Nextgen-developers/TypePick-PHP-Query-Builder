@@ -20,7 +20,7 @@ $queryBuilder
     ->in("typepick_users")
     ->count(["user_id"])
     ->where("user_id", ">", 0)
-    ->execute();;
+    ->execute();
 </pre>
 This example demonstrates a count query on the "typepick_users" table for specific conditions.
 
