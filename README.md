@@ -86,9 +86,11 @@ This snippet demonstrates an insert query for the "typepick_users" table with sp
 
 <h2>'query' method: designed to handle complex scenarios and secure parameter binding</h2>
 <pre>
-$buildQuery = $queryBuilder->query("find", 
-"SELECT id, uid, article_id, created_time FROM typepick_users WHERE uid = :uid",
-[":uid" => $userId])
+$buildQuery = $queryBuilder->query(
+    "find",
+    "SELECT id, uid, article_id, created_time FROM typepick_users WHERE uid = :uid",
+    [":uid" => $userId]
+);
 </pre>
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
