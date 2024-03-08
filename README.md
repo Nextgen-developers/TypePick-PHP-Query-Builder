@@ -11,7 +11,7 @@ $queryBuilder->in("typepick_users")->select(["user_id","username","email"])
 In this example, the $queryBuilder instance is used to build a SELECT query for the "typepick_users" table, selecting the "user_id" column. It further adds a WHERE clause to filter by "user_id" with the value of $uid. Finally, the 'execute' method executes the query and returns the result as an object ('obj'). Adjust the table name, selected columns, and conditions as needed for your specific use case.
 
 <h2>Examples:</h2>
-<h4>'count' method:</h4>
+ <h4>'COUNT' method:</h4>
 <pre>
 $queryBuilder->in("typepick_users")->count(["user_id"])
     ->where("user_id", ">", 0)
@@ -19,7 +19,7 @@ $queryBuilder->in("typepick_users")->count(["user_id"])
 </pre>
 This example demonstrates a count query on the "typepick_users" table for specific conditions.
 
-<h4>'delete' method:</h4>
+<h4>'DELETE' method:</h4>
 <pre>
 $queryBuilder->in("typepick_users")->delete()
     ->where("username", "=", $userId)->and("email", "=", $userEmail)
@@ -27,7 +27,7 @@ $queryBuilder->in("typepick_users")->delete()
 </pre>
 Here, a delete query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
 
-<h4>'update' method:</h4>
+<h4>'UPDATE' method:</h4>
 <pre>
 $queryBuilder
     ->in("typepick_users")->update(["username" => 'new_username'])
@@ -38,7 +38,7 @@ $queryBuilder
 </pre>
 This code updates the "typepick_users" table, setting the "username" to 'new_username' for a specific user ID, including encryption for the "username" column.
 
-<h4>'select' method:</h4>
+<h4>'SELECT' method:</h4>
 <pre>
 $queryBuilder
     ->in("typepick_users")->select(["user_id", "username", "email"])
@@ -53,7 +53,7 @@ $queryBuilder
 </pre>
 This example constructs a select query for the "typepick_users" table with specific conditions, including decryption for "email" and "username" columns and encryption for the "username" column. Method for return array of objects selectAll.
 
-<h4>'insert' method:</h4>
+<h4>'INSERT' method:</h4>
 <pre>
 $queryBuilder
     ->in("typepick_users")->insert([
