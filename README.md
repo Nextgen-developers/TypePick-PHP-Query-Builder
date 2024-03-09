@@ -1,21 +1,20 @@
 # TypePick PHP Query Builder
- Light and simple class for query management.
- 
-<pre>
-$queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
-$queryBuilder
-    ->in("typepick_users")
-    ->select(["user_id", "username", "email"])
-    ->where("user_id", "=", $uid)
-    ->or("username", "=", $username)
-    ->execute("obj");
-</pre>
 
-In this example, the $queryBuilder instance is used to build a SELECT query for the "typepick_users" table, selecting the "user_id" column. It further adds a WHERE clause to filter by "user_id" with the value of $uid. Finally, the 'execute' method executes the query and returns the result as an object ('obj'). Adjust the table name, selected columns, and conditions as needed for your specific use case.
+Welcome to TypePick PHP Query Builder, a lightweight and user-friendly class for efficient query management in PHP applications.
+
+## Getting Started
+
+To get started, create an instance of `tpQuery` by initializing it with your database connection:
+
+```php
+$queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
+```
+
 <h2>Examples:</h2>
 
-<h4>'SELECTALL' method:</h4>
-<pre>
+<h4>'selectall' method:</h4>
+
+```php
 $queryBuilder
     ->in("typepick_users")
     ->selectAll(["user_id", "username", "email", "account_type"])
@@ -32,7 +31,7 @@ $queryBuilder
         "username" => ["method" => "AES", "key" => $AES_KEY]
     ])
     ->execute();
-</pre>
+```
 This example constructs a SELECT query for the "typepick_users" table with specific conditions, including decryption for "email" and "username" columns and encryption for the "username" column. The method returns an array of objects.
 
 - `in("typepick_users")`: Specifies the target table as "typepick_users."
@@ -46,8 +45,9 @@ This example constructs a SELECT query for the "typepick_users" table with speci
 - `encrypt([...])`: Specifies columns for encryption with encryption method and key.
 - `execute()`: Executes the constructed query and returns an array of objects.
 
-<h4>'SELECT' method:</h4>
-<pre>
+<h4>'select' method:</h4>
+
+```php
 $queryBuilder
     ->in("typepick_users")
     ->select(["user_id", "username", "email"])
@@ -61,7 +61,7 @@ $queryBuilder
         "username" => ["method" => "BASE64"],
     ])
     ->execute();
-</pre>
+```
 This example constructs a SELECT query for the "typepick_users" table with specific conditions, including decryption for "email" and "username" columns and encryption for the "username" column. The method returns an array of objects.
 
 - `in("typepick_users")`: Specifies the target table as "typepick_users."
@@ -72,8 +72,9 @@ This example constructs a SELECT query for the "typepick_users" table with speci
 - `encrypt([...])`: Specifies columns for encryption with encryption method and key.
 - `execute()`: Executes the constructed query and returns an array of objects.
 
-<h4>'UPDATE' method:</h4>
-<pre>
+<h4>'update' method:</h4>
+
+```php
 $queryBuilder
     ->in("typepick_users")
     ->update(["username" => "new_username"])
@@ -82,7 +83,8 @@ $queryBuilder
         "username" => ["method" => "BASE64"],
     ])
     ->execute();
-</pre>
+```
+
 This code updates the "typepick_users" table, setting the "username" to 'new_username' for a specific user ID, including encryption for the "username" column.
 
 - `in("typepick_users")`: Specifies the target table as "typepick_users."
@@ -91,8 +93,9 @@ This code updates the "typepick_users" table, setting the "username" to 'new_use
 - `encrypt([...])`: Specifies columns for encryption with encryption method and key.
 - `execute()`: Executes the constructed query.
 
-<h4>'INSERT' method:</h4>
-<pre>
+<h4>'insert' method:</h4>
+
+```php
 $queryBuilder
     ->in("typepick_users")
     ->insert([
@@ -106,7 +109,7 @@ $queryBuilder
         "createdTime" => ["method" => "HEX"],
     ])
     ->execute();
-</pre>
+```
 This snippet demonstrates an INSERT query for the "typepick_users" table with specified values, including encryption for the "username" and "createdTime" columns.
 
 - `in("typepick_users")`: Specifies the target table as "typepick_users."
@@ -114,15 +117,16 @@ This snippet demonstrates an INSERT query for the "typepick_users" table with sp
 - `encrypt([...])`: Specifies columns for encryption with encryption method and key.
 - `execute()`: Executes the constructed query.
 
-<h4>'DELETE' method:</h4>
-<pre>
+<h4>'delete' method:</h4>
+
+```php
 $queryBuilder
     ->in("typepick_users")
     ->delete()
     ->where("username", "=", $userId)
     ->and("email", "=", $userEmail)
     ->execute();
-</pre>
+```
 Here, a DELETE query is constructed for the "typepick_users" table with conditions on "username" and "email," including encryption for the "email" column.
 
 - `in("typepick_users")`: Specifies the target table as "typepick_users."
@@ -132,13 +136,14 @@ Here, a DELETE query is constructed for the "typepick_users" table with conditio
 - `execute()`: Executes the constructed query.
 
 <h4>'query' method: designed to handle complex scenarios and secure parameter binding</h4>
-<pre>
+
+```php
 $buildQuery = $queryBuilder->query(
     "find",
     "SELECT id, uid, article_id, created_time FROM typepick_users WHERE uid = :uid",
     [":uid" => $userId]
 );
-</pre>
+```
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
 - `query("find", "SELECT ...", [":uid" => $userId])`: Executes a custom SQL query with secure parameter binding.
