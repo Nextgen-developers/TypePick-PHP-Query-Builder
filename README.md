@@ -73,7 +73,7 @@ You can choose the desired result format, such as "obj" for objects or "assoc" f
         "named" => PDO::FETCH_NAMED,
         "num" => PDO::FETCH_NUM,
         "obj" => PDO::FETCH_OBJ,
-    ];
+    ]
 ```
     
 ## Examples:
