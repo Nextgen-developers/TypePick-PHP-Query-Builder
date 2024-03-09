@@ -118,7 +118,7 @@ $queryBuilder
     ->in("typepick_users")
     ->select(["user_id", "username", "email"])
     ->where("user_id", "=", $userId)
-    ->or("username", "=", $userName)
+    ->and("username", "=", $userName)
     ->decrypt([
         "email" => ["method" => "AES", "key" => $AES_KEY, "use" => "BASE64"],
         "username" => ["method" => "BASE64"],
