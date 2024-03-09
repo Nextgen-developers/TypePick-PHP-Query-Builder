@@ -25,7 +25,10 @@ class tpQuery
     private $whereData = [];
     private $insertData = [];
     private $selectColumns = [];
+    private $orderColumns = [];
     private $countColumn;
+    private $limit;
+    private $offset;
     private $databaseConnection;
     const FETCH_TYPES = [
         "assoc" => PDO::FETCH_ASSOC,
@@ -103,6 +106,44 @@ class tpQuery
         $this->insertData = $insertData;
         return $this;
     }
+    /**
+     * Sets the query type to find and specifies columns for ordering the results.
+     *
+     * @param array $orderColumns The columns used for ordering the query results.
+     *
+     * @return $this Returns the current instance to support method chaining.
+     */
+    public function orderby(array $orderColumns)
+    {
+        $this->orderColumns = $orderColumns;
+        return $this;
+    }
+
+    /**
+     * Sets the maximum number of rows to retrieve in the query results.
+     *
+     * @param int $limit The maximum number of rows to retrieve.
+     *
+     * @return $this Returns the current instance for method chaining.
+     */
+    public function limit(int $limit)
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    /**
+     * Sets the number of rows to skip before starting to retrieve results in the query.
+     *
+     * @param int $offset The number of rows to skip.
+     *
+     * @return $this Returns the current instance for method chaining.
+     */
+    public function offset(int $offset)
+    {
+        $this->offset = $offset;
+        return $this;
+    }
 
     /**
      * Sets the query type to find and provides select columns.
@@ -157,7 +198,7 @@ class tpQuery
         return $this;
     }
 
-   /**
+    /**
      * Adds a WHERE condition to the query.
      *
      * @param string $column The column name.
@@ -201,7 +242,6 @@ class tpQuery
         $this->parseConditions([$column, $operator, $value, "OR"]);
         return $this;
     }
-
 
     /**
      * Adds an error message to the list of errors.
@@ -431,6 +471,31 @@ class tpQuery
             default:
                 return null;
         }
+    }
+
+    /**
+     * Retrieves the "ORDER BY" clause string for the current query based on specified ordering columns.
+     *
+     * @return string The "ORDER BY" clause string or an empty string if no ordering columns are specified.
+     */
+    public function setOrder()
+    {
+        if (empty($this->orderColumns)) {
+            return "";
+        }
+
+        $orderExpressions = [];
+        foreach ($this->orderColumns as $key => $value) {
+            if (is_string($key)) {
+                // Associative array
+                $orderExpressions[] = "{$key} {$value}";
+            } else {
+                // Indexed array
+                $orderExpressions[] = $value;
+            }
+        }
+
+        return "ORDER BY " . implode(", ", $orderExpressions);
     }
 
     /**
@@ -748,6 +813,72 @@ class tpQuery
             $this->addError("Invalid condition format");
         }
     }
+
+    /**
+     * Builds the WHERE clause of the query based on the provided conditions.
+     *
+     * @param bool $allowEncryption Whether to allow encryption or not.
+     * @param bool $allowDecryption Whether to allow decryption or not.
+     *
+     * @return string The generated WHERE clause.
+     */
+    private function buildWhere(
+        $allowEncryption = false,
+        $allowDecryption = false
+    ) {
+        $where = [];
+        $bindingCounts = [];
+
+        foreach ($this->whereData as $index => $condition) {
+            $logicalOperator = isset($condition["logicalOperator"])
+                ? $condition["logicalOperator"]
+                : "AND";
+            $column = $condition["column"];
+            $operator = $condition["operator"];
+            $value = $condition["value"];
+
+            // Use the binding name generated in getWhereBindings
+            $bindingName = ":$column";
+
+            // Add count for unique binding names
+            $bindingCounts[$bindingName] = isset($bindingCounts[$bindingName])
+                ? $bindingCounts[$bindingName] + 1
+                : 1;
+            $uniqueBindingName = $bindingName . $bindingCounts[$bindingName];
+
+            // Check if encryption or decryption is required and apply it
+            if ($allowEncryption && isset($this->encryption[$column])) {
+                $clause =
+                    "$column $operator " .
+                    $this->applyEncryptionToColumn(
+                        $column,
+                        $uniqueBindingName,
+                        $this->encryption[$column]
+                    );
+            } elseif ($allowDecryption && isset($this->decryption[$column])) {
+                $clause =
+                    "$column $operator " .
+                    $this->applyDecryptionToColumn(
+                        $column,
+                        $uniqueBindingName,
+                        $this->decryption[$column]
+                    );
+            } else {
+                $clause = "$column $operator $uniqueBindingName";
+                $this->bindings[$uniqueBindingName] = $value;
+            }
+
+            // Add logical operator only if it's not the first condition
+            if (!empty($where)) {
+                $where[] = "$logicalOperator $clause";
+            } else {
+                $where[] = $clause;
+            }
+        }
+
+        return implode(" ", $where);
+    }
+
     /**
      * Builds the SELECT query.
      *
@@ -757,86 +888,45 @@ class tpQuery
     {
         $query = "SELECT ";
         $columns = [];
-        $bindingCounts = [];
 
         foreach ($this->selectColumns as $column) {
             // Use the binding name generated in getWhereBindings
             $bindingName = "$column";
 
-            // Add count for unique binding names
-            $bindingCounts[$bindingName] = isset($bindingCounts[$bindingName])
-                ? $bindingCounts[$bindingName] + 1
-                : 1;
-
-            $uniqueBindingName = $bindingName;
-
             // Check if decryption is required and apply it
             if (isset($this->decryption[$column])) {
                 $decryptedColumn = $this->applyDecryptionToColumn(
                     $column,
-                    $uniqueBindingName,
+                    $bindingName,
                     $this->decryption[$column]
                 );
                 $columns[] = "$decryptedColumn as $column";
             } else {
                 $columns[] = "$column";
-                $this->bindings[$uniqueBindingName] = $column;
+                $this->bindings[$bindingName] = $column;
             }
         }
 
         $query .= implode(", ", $columns);
 
         $query .= " FROM {$this->table}";
-        $bindingCounts = [];
-        // Build the WHERE part of the query using the same binding names
-        if (!empty($this->whereData)) {
-            $where = [];
-            $clause = "";
 
-            foreach ($this->whereData as $index => $condition) {
-                $logicalOperator = isset($condition["logicalOperator"])
-                    ? $condition["logicalOperator"]
-                    : "AND";
-                $column = $condition["column"];
-                $operator = $condition["operator"];
-                $value = $condition["value"];
+        $whereClause = $this->buildWhere(true, false);
+        if (!empty($whereClause)) {
+            $query .= " WHERE " . $whereClause;
+        }
 
-                // Use the binding name generated in getWhereBindings
-                $bindingName = ":$column";
+        $orderClause = $this->setOrder();
+        if (!empty($orderClause)) {
+            $query .= " " . $orderClause;
+        }
 
-                // Add count for unique binding names (shared with SELECT part)
-                $bindingCounts[$bindingName] = isset(
-                    $bindingCounts[$bindingName]
-                )
-                    ? $bindingCounts[$bindingName] + 1
-                    : 1;
+        if (!empty($this->limit)) {
+            $query .= " LIMIT " . $this->limit;
+        }
 
-                $uniqueBindingName =
-                    $bindingName . $bindingCounts[$bindingName];
-
-                // Check if encryption or decryption is required and apply it
-                if (isset($this->encryption[$column])) {
-                    $clause =
-                        "$column $operator " .
-                        $this->applyEncryptionToColumn(
-                            $column,
-                            $uniqueBindingName,
-                            $this->encryption[$column]
-                        );
-                } else {
-                    $clause = "$column $operator $uniqueBindingName";
-                    $this->bindings[$uniqueBindingName] = $value;
-                }
-
-                // Add logical operator only if there's a next item
-                if ($index < count($this->whereData) - 1) {
-                    $where[] = "$clause $logicalOperator ";
-                } else {
-                    $where[] = $clause;
-                }
-            }
-
-            $query .= " WHERE " . implode(" ", $where);
+        if (!empty($this->offset)) {
+            $query .= " OFFSET " . $this->offset;
         }
 
         return $query;
@@ -874,62 +964,22 @@ class tpQuery
             $query .= " SET " . implode(", ", $set);
         }
 
-        // Build the WHERE part of the query using the same binding names
-        if (!empty($this->whereData)) {
-            $where = [];
-            $clause = "";
+        $whereClause = $this->buildWhere(true, false);
+        if (!empty($whereClause)) {
+            $query .= " WHERE " . $whereClause;
+        }
 
-            foreach ($this->whereData as $index => $condition) {
-                $logicalOperator = isset($condition["logicalOperator"])
-                    ? $condition["logicalOperator"]
-                    : "AND";
-                $column = $condition["column"];
-                $operator = $condition["operator"];
-                $value = $condition["value"];
+        $orderClause = $this->setOrder();
+        if (!empty($orderClause)) {
+            $query .= " " . $orderClause;
+        }
 
-                // Use the binding name generated in getWhereBindings
-                $bindingName = ":$column";
+        if (!empty($this->limit)) {
+            $query .= " LIMIT " . $this->limit;
+        }
 
-                // Add count for unique binding names
-                $bindingCounts[$bindingName] = isset(
-                    $bindingCounts[$bindingName]
-                )
-                    ? $bindingCounts[$bindingName] + 1
-                    : 1;
-                $uniqueBindingName =
-                    $bindingName . $bindingCounts[$bindingName];
-
-                // Check if encryption is required and apply it
-                if (isset($this->encryption[$column])) {
-                    $clause =
-                        "$column $operator " .
-                        $this->applyEncryptionToColumn(
-                            $column,
-                            $uniqueBindingName,
-                            $this->encryption[$column]
-                        );
-                } elseif (isset($this->decryption[$column])) {
-                    $clause =
-                        "$column $operator " .
-                        $this->applyDecryptionToColumn(
-                            $column,
-                            $uniqueBindingName,
-                            $this->decryption[$column]
-                        );
-                } else {
-                    $clause = "$column $operator $uniqueBindingName";
-                    $this->bindings[$uniqueBindingName] = $value;
-                }
-
-                // Add logical operator only if there's a next item
-                if ($index < count($this->whereData) - 1) {
-                    $where[] = "$clause $logicalOperator ";
-                } else {
-                    $where[] = $clause;
-                }
-            }
-
-            $query .= " WHERE " . implode(" ", $where);
+        if (!empty($this->offset)) {
+            $query .= " OFFSET " . $this->offset;
         }
 
         return $query;
@@ -944,59 +994,22 @@ class tpQuery
     {
         $query = "DELETE FROM {$this->table}";
 
-        // Build the WHERE part of the query using the same binding names
-        if (!empty($this->whereData)) {
-            $where = [];
-            foreach ($this->whereData as $index => $condition) {
-                $logicalOperator = isset($condition["logicalOperator"])
-                    ? $condition["logicalOperator"]
-                    : "AND";
-                $column = $condition["column"];
-                $operator = $condition["operator"];
-                $value = $condition["value"];
+        $whereClause = $this->buildWhere(true, false);
+        if (!empty($whereClause)) {
+            $query .= " WHERE " . $whereClause;
+        }
 
-                // Use the binding name generated in getWhereBindings
-                $bindingName = ":$column";
+        $orderClause = $this->setOrder();
+        if (!empty($orderClause)) {
+            $query .= " " . $orderClause;
+        }
 
-                // Add count for unique binding names
-                $bindingCounts[$bindingName] = isset(
-                    $bindingCounts[$bindingName]
-                )
-                    ? $bindingCounts[$bindingName] + 1
-                    : 1;
-                $uniqueBindingName =
-                    $bindingName . $bindingCounts[$bindingName];
+        if (!empty($this->limit)) {
+            $query .= " LIMIT " . $this->limit;
+        }
 
-                // Check if encryption or decryption is required and apply it
-                if (isset($this->encryption[$column])) {
-                    $clause =
-                        "$column $operator " .
-                        $this->applyEncryptionToColumn(
-                            $column,
-                            $uniqueBindingName,
-                            $this->encryption[$column]
-                        );
-                } elseif (isset($this->decryption[$column])) {
-                    $clause =
-                        "$column $operator " .
-                        $this->applyDecryptionToColumn(
-                            $column,
-                            $uniqueBindingName,
-                            $this->decryption[$column]
-                        );
-                } else {
-                    $clause = "$column $operator $uniqueBindingName";
-                    $this->bindings[$uniqueBindingName] = $value;
-                }
-
-                // Add logical operator only if it's not the first condition
-                if (!empty($where)) {
-                    $where[] = "$logicalOperator $clause";
-                } else {
-                    $where[] = $clause;
-                }
-            }
-            $query .= " WHERE " . implode(" ", $where);
+        if (!empty($this->offset)) {
+            $query .= " OFFSET " . $this->offset;
         }
 
         return $query;
@@ -1058,7 +1071,7 @@ class tpQuery
      */
     public function validateKey($key)
     {
-        if(empty($key)) {
+        if (empty($key)) {
             $key = $this->defaultEncryptionKey;
         }
         // Ensure the key length is valid (128, 192, or 256 bits)
@@ -1071,31 +1084,38 @@ class tpQuery
     public function clear()
     {
         $this->table = null;
+        $this->limit = null;
+        $this->offset = null;
         $this->updateData = [];
         $this->queryType = null;
         $this->whereData = [];
         $this->insertData = [];
         $this->selectColumns = [];
+        $this->orderColumns = [];
         $this->countColumn = null;
         $this->encryption = [];
         $this->decryption = [];
     }
-
-    public function aes_sql_encrypt(
-        $value,
-        $use = null,
-        $key = null
-    ) {
+    
+    /**
+     * Encrypts a value using AES encryption in SQL format.
+     *
+     * @param mixed $value The value to be encrypted.
+     * @param string|null $use The encoding method (BASE64 or HEX). Default is null.
+     * @param string|null $key The encryption key. Default is null.
+     *
+     * @return string The SQL expression for encrypted value.
+     */
+    public function aes_sql_encrypt($value, $use = null, $key = null)
+    {
         if (!empty($use)) {
             if ($use === "BASE64") {
-                // Encrypt the value using AES_ENCRYPT and encode the result with BASE64
                 return "TO_BASE64(AES_ENCRYPT(" .
                     $value .
                     ", '" .
                     $this->validateKey($key) .
                     "'))";
             } elseif ($use === "HEX") {
-                // Encrypt the value using AES_ENCRYPT and encode the result with HEX
                 return "HEX(AES_ENCRYPT(" .
                     $value .
                     ", '" .
@@ -1103,7 +1123,6 @@ class tpQuery
                     "'))";
             }
         } else {
-            // Encrypt the value using AES_ENCRYPT
             return "AES_ENCRYPT(" .
                 $value .
                 ", '" .
@@ -1112,21 +1131,25 @@ class tpQuery
         }
     }
 
-    public function aes_sql_decrypt(
-        $encryptedValue,
-        $use = null,
-        $key = null
-    ) {
+    /**
+     * Decrypts an encrypted value using AES decryption in SQL format.
+     *
+     * @param string $encryptedValue The encrypted value to be decrypted.
+     * @param string|null $use The encoding method (BASE64 or HEX). Default is null.
+     * @param string|null $key The encryption key. Default is null.
+     *
+     * @return string The SQL expression for decrypted value.
+     */
+    public function aes_sql_decrypt($encryptedValue, $use = null, $key = null)
+    {
         if (!empty($use)) {
             if ($use === "BASE64") {
-                // Decode the BASE64 and then decrypt using AES_DECRYPT
                 return "AES_DECRYPT(FROM_BASE64('" .
                     $encryptedValue .
                     "'), '" .
                     $this->validateKey($key) .
                     "')";
             } elseif ($use === "HEX") {
-                // Decode the HEX and then decrypt using AES_DECRYPT
                 return "AES_DECRYPT(UNHEX('" .
                     $encryptedValue .
                     "'), '" .
@@ -1134,7 +1157,6 @@ class tpQuery
                     "')";
             }
         } else {
-            // Decrypt using AES_DECRYPT
             return "AES_DECRYPT('" .
                 $encryptedValue .
                 "', '" .
@@ -1143,16 +1165,21 @@ class tpQuery
         }
     }
 
-    public function aes_php_encrypt(
-        $value,
-        $use = null,
-        $key = null
-    ) {
+    /**
+     * Encrypts a value using AES encryption in PHP format.
+     *
+     * @param string $value The value to be encrypted.
+     * @param string|null $use The encoding method (BASE64 or HEX). Default is null.
+     * @param string|null $key The encryption key. Default is null.
+     *
+     * @return string The encrypted value.
+     */
+    public function aes_php_encrypt($value, $use = null, $key = null)
+    {
         $validatedKey = $this->validateKey($key);
 
         if (!empty($use)) {
             if ($use === "BASE64") {
-                // Encrypt the value using AES encryption and encode the result with BASE64
                 return base64_encode(
                     openssl_encrypt(
                         $value,
@@ -1163,7 +1190,6 @@ class tpQuery
                     )
                 );
             } elseif ($use === "HEX") {
-                // Encrypt the value using AES encryption and encode the result with HEX
                 return bin2hex(
                     openssl_encrypt(
                         $value,
@@ -1175,7 +1201,6 @@ class tpQuery
                 );
             }
         } else {
-            // Encrypt the value using AES encryption
             return openssl_encrypt(
                 $value,
                 "aes-256-cbc",
@@ -1186,16 +1211,21 @@ class tpQuery
         }
     }
 
-    public static function aes_php_decrypt(
-        $encryptedValue,
-        $use = null,
-        $key = null
-    ) {
+    /**
+     * Decrypts an encrypted value using AES decryption in PHP format.
+     *
+     * @param string $encryptedValue The encrypted value to be decrypted.
+     * @param string|null $use The encoding method (BASE64 or HEX). Default is null.
+     * @param string|null $key The encryption key. Default is null.
+     *
+     * @return string The decrypted value.
+     */
+    public function aes_php_decrypt($encryptedValue, $use = null, $key = null)
+    {
         $validatedKey = $this->validateKey($key);
 
         if (!empty($use)) {
             if ($use === "BASE64") {
-                // Decode the BASE64 and then decrypt using AES decryption
                 return openssl_decrypt(
                     base64_decode($encryptedValue),
                     "aes-256-cbc",
@@ -1204,7 +1234,6 @@ class tpQuery
                     $validatedKey
                 );
             } elseif ($use === "HEX") {
-                // Decode the HEX and then decrypt using AES decryption
                 return openssl_decrypt(
                     hex2bin($encryptedValue),
                     "aes-256-cbc",
@@ -1214,7 +1243,6 @@ class tpQuery
                 );
             }
         } else {
-            // Decrypt using AES decryption
             return openssl_decrypt(
                 $encryptedValue,
                 "aes-256-cbc",

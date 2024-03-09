@@ -38,17 +38,40 @@ function executeQuery($queryBuilder, $queryType)
         round($executionTime * 1000, 2) . " ms<br>";
 }
 
-// --- Count Query Example ---
-$queryBuilder->in("typepick_users")->count(["user_id"])
-    ->where("user_id", ">", 0);
+// --- SelectAll Query Example ---
+$queryBuilder
+    ->in("typepick_users")
+    ->selectAll(["user_id", "username", "email", "account_type"])
+    ->where("user_id", "=", $userId)
+    ->or("username", "=", $userName)
+    ->orderby(["user_id" => "DESC"])
+    ->limit(5)
+    ->offset(1)
+    ->decrypt([
+        "email" => ["method" => "AES", "key" => $AES_KEY],
+        "username" => ["method" => "AES", "key" => $AES_KEY],
+    ])
+    ->encrypt([
+        "username" => ["method" => "AES", "key" => $AES_KEY]
+    ]);
 
-executeQuery($queryBuilder, 'Count');
+executeQuery($queryBuilder, 'Select');
 
-// --- Delete Query Example ---
-$queryBuilder->in("typepick_users")->delete()
-    ->where("username", "=", $userId)->and("email", "=", $userEmail);
+// --- Select Query Example ---
+$queryBuilder
+    ->in("typepick_users")
+    ->select(["user_id", "username", "email"])
+    ->where("user_id", "=", $userId)->or("username", "=", $userName)
+    ->orderby(["user_id" => "DESC"])
+    ->decrypt([
+        "email" => ["method" => "AES", "key" => $AES_KEY],
+        "username" => ["method" => "AES", "key" => $AES_KEY],
+    ])
+    ->encrypt([
+        "username" => ["method" => "AES", "key" => $AES_KEY]
+    ]);
 
-executeQuery($queryBuilder, 'Delete');
+executeQuery($queryBuilder, 'Select');
 
 // --- Update Query Example ---
 $queryBuilder
@@ -60,21 +83,6 @@ $queryBuilder
     ]);
 
 executeQuery($queryBuilder, 'Update');
-
-// --- Select Query Example ---
-$queryBuilder
-    ->in("typepick_users")
-    ->select(["user_id", "username", "email"])
-    ->where("user_id", "=", $userId)->or("username", "=", $userName)
-    ->decrypt([
-        "email" => ["method" => "AES", "key" => $AES_KEY],
-        "username" => ["method" => "AES", "key" => $AES_KEY],
-    ])
-    ->encrypt([
-        "username" => ["method" => "AES", "key" => $AES_KEY]
-    ]);
-
-executeQuery($queryBuilder, 'Select');
 
 // --- Insert Query Example ---
 $queryBuilder
@@ -90,5 +98,17 @@ $queryBuilder
     ]);
 
 executeQuery($queryBuilder, 'Insert');
+
+// --- Count Query Example ---
+$queryBuilder->in("typepick_users")->count(["user_id"])
+    ->where("user_id", ">", 0);
+
+executeQuery($queryBuilder, 'Count');
+
+// --- Delete Query Example ---
+$queryBuilder->in("typepick_users")->delete()
+    ->where("username", "=", $userId)->and("email", "=", $userEmail);
+
+executeQuery($queryBuilder, 'Delete');
 
 ?>
