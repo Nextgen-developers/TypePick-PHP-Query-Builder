@@ -10,7 +10,73 @@ To get started, create an instance of `tpQuery` by initializing it with your dat
 $queryBuilder = new tpQuery(initSetup::getDatabaseConnection());
 ```
 
-<h2>Examples:</h2>
+## Building a SELECT Query
+In this example, we're selecting specific columns from the "typepick_users" table based on certain conditions:
+
+```php
+$queryBuilder
+    ->in("typepick_users")
+    ->select(["user_id", "username", "email"])
+    ->where("user_id", "=", $uid)
+    ->or("username", "=", $username)
+    ->execute("obj");
+```
+
+Here's a breakdown of the example:
+- `in("typepick_users")`: Specifies the target table as "typepick_users."
+- `select(["user_id", "username", "email"])`: Specifies the columns to be selected in the query.
+- `where("user_id", "=", $uid)`: Adds a WHERE clause to filter results where "user_id" equals a specific value.
+- `or("username", "=", $username)`: Adds an OR condition to the WHERE clause where "username" equals a specific value.
+- `execute("obj")`: Executes the constructed query and returns the result as an object.
+
+## Encryption in SQL Format
+TypePick PHP Query Builder supports encryption for enhanced security in your queries. 
+Simply specify the columns and the encryption method:
+
+```php
+$queryBuilder
+    ->encrypt([
+        "email" => ["method" => "AES", "key" => $AES_KEY],
+        "username" => ["method" => "AES", "key" => $AES_KEY]
+    ]);
+```
+
+In this example, "email" and "username" columns will be encrypted using the AES method with the provided key.
+
+## Secure Parameter Binding
+To guard against SQL injection, TypePick PHP Query Builder utilizes secure parameter binding:
+
+```php
+$queryBuilder
+    ->where("user_id", "=", $uid)
+    ->or("username", "=", $username);
+```
+
+The values of $uid and $username are securely bound to the query, ensuring the safety of your application.
+
+## Execution and Result Handling
+Executing queries is straightforward with the execute method:
+
+```php
+$queryBuilder->execute("obj");
+```
+
+You can choose the desired result format, such as "obj" for objects or "assoc" for associative arrays.
+```php
+    [
+        "assoc" => PDO::FETCH_ASSOC,
+        "both" => PDO::FETCH_BOTH,
+        "bound" => PDO::FETCH_BOUND,
+        "class" => PDO::FETCH_CLASS,
+        "into" => PDO::FETCH_INTO,
+        "lazy" => PDO::FETCH_LAZY,
+        "named" => PDO::FETCH_NAMED,
+        "num" => PDO::FETCH_NUM,
+        "obj" => PDO::FETCH_OBJ,
+    ];
+```
+    
+## Examples:
 
 <h4>'selectall' method:</h4>
 
