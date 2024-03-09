@@ -213,6 +213,6 @@ $buildQuery = $queryBuilder->query(
 This method is particularly useful when dealing with specific scenarios where the standard CRUD operations provided by the queryBuilder class may not cover all use cases. It allows developers to create and execute custom SQL queries while benefiting from the security features provided by the underlying query building infrastructure.
 
   - `query("find", "SELECT ...", [":uid" => $userId])`: Executes a custom SQL query with secure parameter binding.
-  - `"find"`: A label or identifier for the custom query.
+  - `"find"`: Identifier for the custom query (find, foreach, count, delete, insert, update).
   - `"SELECT ..."`: The custom SQL query to be executed.
   - `[":uid" => $userId]`: An associative array for secure parameter binding, protecting against SQL injection.
