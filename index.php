@@ -1,4 +1,11 @@
 <?php
+/**
+ * TypePick PHP Query Builder
+ * https://github.com/Nextgen-developers/TypePick-PHP-Query-Builder
+ *
+ * @copyright 2024 Nextgen-developers
+ * @license   MIT, https://opensource.org/licenses/MIT
+ */
 include_once "Config/config.php";
 include_once "Build/builderClass.php";
 
@@ -61,7 +68,8 @@ executeQuery($queryBuilder, 'Select');
 $queryBuilder
     ->in("typepick_users")
     ->select(["user_id", "username", "email"])
-    ->where("user_id", "=", $userId)->or("username", "=", $userName)
+    ->where("user_id", "=", $userId)
+    ->and("username", "=", $userName)
     ->orderby(["user_id" => "DESC"])
     ->decrypt([
         "email" => ["method" => "AES", "key" => $AES_KEY],

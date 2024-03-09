@@ -1,4 +1,11 @@
 <?php
+/**
+ * TypePick PHP Query Builder
+ * https://github.com/Nextgen-developers/TypePick-PHP-Query-Builder
+ *
+ * @copyright 2024 Nextgen-developers
+ * @license   MIT, https://opensource.org/licenses/MIT
+ */
 class tpQuery
 {
     /**
