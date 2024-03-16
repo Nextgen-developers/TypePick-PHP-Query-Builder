@@ -1,6 +1,6 @@
 # TypePick PHP Query Builder
 
-Welcome to TypePick PHP Query Builder, a lightweight and user-friendly class for efficient query management in PHP applications.
+Welcome to TypePick PHP Query Builder, a lightweight class for efficient query management in PHP applications.
 
 ## Getting Started
 
